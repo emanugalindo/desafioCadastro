@@ -9,6 +9,7 @@ public class MenuInicialController {
     private int opcao = 1;
     private MenuInicialView menuInicial = new MenuInicialView();
     private Scanner sc = new Scanner(System.in);
+    PetController pc = new PetController();
 
     public void iniciarMenu() {
         while (opcao != 6) {
@@ -18,7 +19,7 @@ public class MenuInicialController {
                 menuInicial.exibirSeparador();
                 switch (opcao) {
                     case 1:
-                        System.out.println("Cadastrando");
+                        pc.criarPet();
                         break;
                     case 2:
                         System.out.println("Alterando");
