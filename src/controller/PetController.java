@@ -11,5 +11,6 @@ public class PetController {
                 ps.verificarEnderecoValido(), ps.verificarIdadevalida(), ps.verificarPesoValido(),
                 ps.verificarRacaValida());
 
+        pet.salvarPet();
     }
 }

@@ -123,8 +123,11 @@ public class PetService {
                 throw new IllegalArgumentException();
             }
 
-            if (idade < 1) return String.format("%.1f meses", idade);
-            return String.format("%.0f anos", idade);
+            if (idade < 1){
+                idade *= 10;
+                return String.format("%.0f mês(es)", idade);
+            }
+            return String.format("%.0f ano(s)", idade);
         } catch (NumberFormatException e) {
             return verificarIdadevalida();
         } catch (IllegalArgumentException e) {

@@ -1,5 +1,12 @@
 package model;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Pet {
     private String nome;
     private Tipo tipo;
@@ -76,6 +83,39 @@ public class Pet {
 
     public void setRaca(String raca) {
         this.raca = raca;
+    }
+
+    public void salvarPet(){
+        File diretorio = new File("petsCadastrados");
+        if (!diretorio.exists()) {
+            diretorio.mkdirs();
+        }
+
+        LocalDateTime dataHora = LocalDateTime.now();
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmm");
+        String dataHoraFomatada = dataHora.format(formatador);
+
+        File animal = new File("petsCadastrados/" + dataHoraFomatada + "-" + this.nome.replace(" ", "").toUpperCase() + ".txt");
+        try(BufferedWriter bw = new BufferedWriter(new FileWriter(animal, true))){
+            bw.write("1 - " + this.nome);
+            bw.newLine();
+            bw.write("2 - " + this.tipo);
+            bw.newLine();
+            bw.write("3 - " + this.sexo);
+            bw.newLine();
+            bw.write("4 - " + this.endereco);
+            bw.newLine();
+            bw.write("5 - " + this.idade);
+            bw.newLine();
+            bw.write("6 - " + this.peso);
+            bw.newLine();
+            bw.write("7 - " + this.raca);
+            bw.newLine();
+        } catch (IOException e) {
+            System.out.println("Erro na criação ou escrita no arquivo " + e.getMessage());
+            return;
+        }
+        System.out.println("Arquivo criado com sucesso");
     }
 
     @Override
