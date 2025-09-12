@@ -119,11 +119,11 @@ public class PetService {
             if (idade == null) {
                 return Constante.NAO_INFORMADO;
             }
-            if (idade > 20) {
+            if (idade > 20 || idade < 0) {
                 throw new IllegalArgumentException();
             }
 
-            if (idade < 1) return String.format("%.1f anos", idade);
+            if (idade < 1) return String.format("%.1f meses", idade);
             return String.format("%.0f anos", idade);
         } catch (NumberFormatException e) {
             return verificarIdadevalida();
