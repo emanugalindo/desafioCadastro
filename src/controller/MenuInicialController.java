@@ -31,7 +31,7 @@ public class MenuInicialController {
                         System.out.println("Listando pets");
                         break;
                     case 5:
-                        System.out.println("Listando pets por critério");
+                        pc.buscarPet();
                         break;
                     case 6:
                         System.out.println("Saindo....");
