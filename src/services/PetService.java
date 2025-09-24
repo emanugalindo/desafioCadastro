@@ -1,18 +1,19 @@
 package services;
 
 import model.Endereco;
+import model.Pet;
 import model.Sexo;
 import model.Tipo;
 import utils.Constante;
 import view.FormularioView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class PetService {
 
@@ -129,8 +130,7 @@ public class PetService {
             }
 
             if (idade < 1) {
-                idade *= 10;
-                return String.format("%.0f mês(es)", idade);
+                return String.format("%.1f ano(s)", idade);
             }
             return String.format("%.0f ano(s)", idade);
         } catch (NumberFormatException e) {
@@ -198,214 +198,193 @@ public class PetService {
         }
     }
 
-    private List<String> buscarTermoString(String termo, int numeroLinha, String tipoAnimal) {
-        List<String> arquivosEncontrados = new ArrayList<>();
-        try {
-            Files.walk(Paths.get("petsCadastrados"))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> {
-                        try {
-                            List<String> linhas = Files.readAllLines(path);
-                            if (linhas.size() > 2 && !linhas.get(2).equalsIgnoreCase(tipoAnimal)) {
-                                return; // pula para o próximo arquivo
-                            }
-                            if (numeroLinha < linhas.size() &&
-                                    linhas.get(numeroLinha).toLowerCase().contains(termo.toLowerCase())) {
+    public ArrayList<Pet> buscarPets() {
+        File[] files = new File("petsCadastrados").listFiles();
 
-                                String conteudoCompleto = linhas.stream()
-                                        .map(linha -> linha.replaceFirst("^\\d+\\s*-\\s*", "")) // Remove "número - "
-                                        .collect(Collectors.joining(" - "));
-
-                                arquivosEncontrados.add(conteudoCompleto);
-                            }
-                        } catch (IOException e) {
-                            System.out.println("Erro ao ler o arquivo: " + e.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            System.out.println("Erro ao acessar os arquivos: " + e.getMessage());
+        ArrayList<Pet> petsLista = null;
+        if (files != null) {
+            petsLista = new ArrayList<>();
         }
-        return arquivosEncontrados;
+
+        for (int i = 0; i < files.length; i++) {
+            if (files[i].getName().endsWith(".txt")) {
+                try (BufferedReader br = new BufferedReader(new FileReader(files[i]))) {
+                    String nome = br.readLine().split(" - ")[1];
+                    String tipo = br.readLine().split(" - ")[1];
+                    String sexo = br.readLine().split(" - ")[1];
+                    String endereco = br.readLine().split(" - ")[1];
+                    String idade = br.readLine().split(" - ")[1];
+                    String peso = br.readLine().split(" - ")[1];
+                    String raca = br.readLine().split(" - ")[1];
+
+                    String enderecoStrings[] = endereco.split(",");
+                    Endereco enderecoPet = new Endereco(enderecoStrings[0].trim(), enderecoStrings[1].trim(), enderecoStrings[2].trim());
+
+                    Pet pet = new Pet(nome, Tipo.valueOf(tipo.toUpperCase()), Sexo.valueOf(sexo.toUpperCase()), enderecoPet, idade, peso, raca);
+
+                    petsLista.add(pet);
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        return petsLista;
     }
 
-    private List<String> buscarTermoDouble(double termo, int numeroLinha, String tipoAnimal) {
-        List<String> arquivosEncontrados = new ArrayList<>();
-        try {
-            Files.walk(Paths.get("petsCadastrados"))
-                    .filter(Files::isRegularFile)
-                    .forEach(path -> {
-                        try {
-                            List<String> linhas = Files.readAllLines(path);
-                            if (linhas.size() > 2 && !linhas.get(2).equalsIgnoreCase(tipoAnimal)) {
-                                return; // pula para o próximo arquivo
-                            }
-                            if (numeroLinha < linhas.size() &&
-                                    linhas.get(numeroLinha).contains(String.valueOf(termo))) {
+    public void menu() {
+        ArrayList<Pet> petsLista;
+        List<Pet> petsEncontrados;
 
-                                String conteudoCompleto = linhas.stream()
-                                        .map(linha -> linha.replaceFirst("^\\d+\\s*-\\s*", "")) // Remove "número - "
-                                        .collect(Collectors.joining(" - "));
+        petsLista = buscarPets();
+        Scanner sc = new Scanner(System.in);
 
-                                arquivosEncontrados.add(conteudoCompleto);
-                            }
-                        } catch (IOException e) {
-                            System.out.println("Erro ao ler o arquivo: " + e.getMessage());
-                        }
-                    });
-        } catch (IOException e) {
-            System.out.println("Erro ao acessar os arquivos: " + e.getMessage());
+        System.out.println("Selecione para filtrar - Gato ou Cachorro: ");
+        String escolhaTipo = sc.nextLine();
+
+        System.out.println("\nEscolha o primeiro critério");
+        criterios();
+        int criterio1 = sc.nextInt();
+
+        System.out.println("\nEscolha o segundo critério");
+        criterios();
+        int criterio2 = sc.nextInt();
+
+        petsEncontrados = buscarTipo(escolhaTipo, petsLista);
+
+        sc.nextLine();
+        System.out.println();
+
+        if (criterio1 == 1 || criterio2 == 1) {
+            System.out.println("Digite o nome e/ou sobrenome do pet: ");
+            String nome = sc.nextLine().toLowerCase().trim();
+
+            if (nome.isBlank()) System.out.println("Digite um nome");
+            else petsEncontrados = buscarNome(nome, petsEncontrados);
         }
-        return arquivosEncontrados;
+
+        if (criterio1 == 2 || criterio2 == 2) {
+            System.out.println("Digite o sexo do pet (Macho|Fêmea): ");
+            String sexo = sc.nextLine().toLowerCase().trim();
+
+            if (sexo.isBlank()) System.out.println("Digite um sexo");
+            else petsEncontrados = buscarSexo(sexo, petsEncontrados);
+        }
+
+        if (criterio1 == 3 || criterio2 == 3) {
+            System.out.println("Digite a idade do pet: ");
+            double idade = sc.nextDouble();
+            sc.nextLine();
+            petsEncontrados = buscarIdade(idade, petsEncontrados);
+        }
+
+        if (criterio1 == 4 || criterio2 == 4) {
+            System.out.println("Digite peso do pet: ");
+            double peso = sc.nextDouble();
+            sc.nextLine();
+            petsEncontrados = buscarPeso(peso, petsEncontrados);
+        }
+
+        if (criterio1 == 5 || criterio2 == 5) {
+            sc.nextLine();
+            System.out.println("Digite a raça do pet: ");
+            String raca = sc.nextLine().toLowerCase().trim();
+
+            if (raca.isBlank()) System.out.println("Digite uma raça");
+            else petsEncontrados = buscarRaca(raca, petsEncontrados);
+        }
+
+        if (criterio1 == 6 || criterio2 == 6) {
+            System.out.println("Digite o endereço: ");
+            String endereco = sc.nextLine().toLowerCase().trim();
+
+            if (endereco.isBlank()) System.out.println("Digite um endereço");
+            else petsEncontrados = buscarEndereco(endereco, petsEncontrados);
+        }
+
+        exibirPets(petsEncontrados);
     }
 
-    public List<String> buscarCombinada() {
-        System.out.println("=== BUSCA COMBINADA ===");
-        System.out.println("1 - Nome");
+    private void criterios() {
+        System.out.println("1 - Nome e/ou sobrenome");
         System.out.println("2 - Sexo");
         System.out.println("3 - Idade");
         System.out.println("4 - Peso");
         System.out.println("5 - Raça");
         System.out.println("6 - Endereço");
-        System.out.println("0 - Voltar ao menu principal");
-
-        Scanner sc = new Scanner(System.in);
-
-        System.out.println("Digite o tipo do animal (Cachorro ou Gato): ");
-        String tipo = sc.nextLine();
-
-        if (!tipo.equalsIgnoreCase("Cachorro") && !tipo.equalsIgnoreCase("Gato")) {
-            System.out.println("Tipo inválido. Digite 'Cachorro' ou 'Gato'.");
-            return buscarCombinada();
-        }
-
-        System.out.println("Deseja usar um ou dois critérios? (1 ou 2): ");
-        int numeroCriterios = sc.nextInt();
-        sc.nextLine();
-
-        if (numeroCriterios == 1) {
-            System.out.println("Escolha o critério de busca (1-7): ");
-            int criterio = sc.nextInt();
-            sc.nextLine();
-
-            List<String> resultados = obterResultadosPorCriterio(criterio, tipo);
-
-            if (resultados.isEmpty()) {
-                System.out.println("\nNenhum animal encontrado com esse critério.");
-            } else {
-                System.out.println("\nAnimais encontrados:");
-                for (int i = 0; i < resultados.size(); i++) {
-                    System.out.println((i + 1) + ". " + resultados.get(i));
-                }
-            }
-            return resultados;
-
-        } else if (numeroCriterios == 2) {
-            System.out.println("Escolha o primeiro critério de busca (1-7): ");
-            int primeiroCriterio = sc.nextInt();
-            sc.nextLine();
-
-            System.out.println("Escolha o segundo critério de busca (1-7): ");
-            int segundoCriterio = sc.nextInt();
-            sc.nextLine();
-
-            List<String> resultadosPrimeiro = obterResultadosPorCriterio(primeiroCriterio, tipo);
-            List<String> resultadosSegundo = obterResultadosPorCriterio(segundoCriterio, tipo);
-
-            // Encontra a interseção (animais que atendem ambos os critérios)
-            List<String> resultadosCombinados = new ArrayList<>();
-            for (String animal : resultadosPrimeiro) {
-                if (resultadosSegundo.contains(animal)) {
-                    resultadosCombinados.add(animal);
-                }
-            }
-
-            if (resultadosCombinados.isEmpty()) {
-                System.out.println("Nenhum animal encontrado que atenda ambos os critérios.");
-            } else {
-                System.out.println("Animais encontrados que atendem ambos os critérios:");
-                for (int i = 0; i < resultadosCombinados.size(); i++) {
-                    System.out.println((i + 1) + ". " + resultadosCombinados.get(i));
-                }
-            }
-            return resultadosCombinados;
-
-        } else {
-            System.out.println("Opção inválida.");
-            return new ArrayList<>();
-        }
+        System.out.println("0 - Nenhuma das opções");
+        System.out.print("Opção escolhida: ");
     }
 
-
-    private List<String> obterResultadosPorCriterio(int criterio, String tipoAnimal) {
-        Scanner sc = new Scanner(System.in);
-
-        switch (criterio) {
-            case 1:
-                System.out.println("Digite o nome e/ou sobrenome do animal: ");
-                String nome = sc.nextLine();
-                if (nome.matches("^[A-Za-zÀ-ÖØ-öø-ÿ]+(?:\\s+[A-Za-zÀ-ÖØ-öø-ÿ]+)?$")) {
-                    return buscarTermoString(nome, 0, tipoAnimal);
-                }
-                break;
-
-            case 2:
-                System.out.println("Digite o sexo do animal (Macho ou Fêmea): ");
-                String sexo = sc.nextLine();
-                if (sexo.equalsIgnoreCase("Macho") || sexo.equalsIgnoreCase("Femea") || sexo.equalsIgnoreCase("Fêmea")) {
-                    return buscarTermoString(sexo, 2, tipoAnimal);
-                }
-                break;
-
-            case 3:
-                System.out.println("Digite o endereço: ");
-                String endereco = sc.nextLine();
-                if (!endereco.trim().isEmpty()) {
-                    return buscarTermoString(endereco, 3, tipoAnimal);
-                }
-                break;
-
-            case 4:
-                System.out.println("Digite a idade do animal: ");
-                try {
-                    double idade = sc.nextDouble();
-                    if (idade >= 0 && idade <= 20) {
-                        return buscarTermoDouble(idade, 4, tipoAnimal);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Valor inválido para idade.");
-                }
-                break;
-
-            case 5:
-                System.out.println("Digite o peso do animal: ");
-                try {
-                    double peso = sc.nextDouble();
-                    if (peso >= 0.5 && peso <= 60) {
-                        return buscarTermoDouble(peso, 5, tipoAnimal);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Valor inválido para peso.");
-                }
-                break;
-
-            case 6:
-                System.out.println("Digite a raça do animal: ");
-                String raca = sc.nextLine();
-                if (raca.matches("^[A-Za-zÀ-ÖØ-öø-ÿ\\s]+$")) {
-                    return buscarTermoString(raca, 6, tipoAnimal);
-                }
-                break;
-
-            case 0:
-                System.out.println("Voltando ao menu principal...");
-                break;
-
-            default:
-                System.out.println("Opção inválida.");
-                break;
-        }
-
-        return new ArrayList<>();
+    private List<Pet> buscarTipo(String tipo, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> pet.getTipo().toString().equalsIgnoreCase(tipo)).toList();
     }
 
+    private List<Pet> buscarNome(String nome, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> pet.getNome().toLowerCase().contains(nome)).toList();
+    }
+
+    private List<Pet> buscarSexo(String sexo, List<Pet> pets) {
+        String sexoNormalizado = sexo.replace("ê", "e");
+        return pets.stream()
+                .filter(pet -> pet.getSexo().toString().toLowerCase().contains(sexoNormalizado.toLowerCase())).toList();
+    }
+
+    private List<Pet> buscarIdade(double idade, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> {
+                    try {
+                        return Double.parseDouble(pet.getIdade().replace("ano(s)", "")) == idade;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .toList();
+    }
+
+    private List<Pet> buscarPeso(double peso, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> {
+                    try {
+                        return Double.parseDouble(pet.getPeso().replace("kg", "")) == peso;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                })
+                .toList();
+    }
+
+    private List<Pet> buscarRaca(String raca, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> pet.getRaca().toLowerCase().contains(raca)).toList();
+    }
+
+    private List<Pet> buscarEndereco(String endereco, List<Pet> pets) {
+        return pets.stream()
+                .filter(pet -> pet.getEndereco().toString().toLowerCase().contains(endereco.toLowerCase())).toList();
+    }
+
+    public void exibirPets(List<Pet> pets) {
+        if (pets == null) buscarPets();
+
+        if (pets.isEmpty()) {
+            System.out.println("Nenhum pet corresponde aos critérios informados\n");
+            return;
+        }
+
+        int cont = 1;
+
+        System.out.println("\n======== PETS ENCONTRADOS ========");
+        for (Pet pet : pets) {
+            System.out.printf(
+                    "%d.  %s - %s - %s - %s - %s - %s - %s%n",
+                    cont++, pet.getNome(), pet.getTipo(), pet.getSexo(),
+                    pet.getEndereco(), pet.getIdade(), pet.getPeso(),
+                    pet.getRaca()
+            );
+        }
+    }
 }

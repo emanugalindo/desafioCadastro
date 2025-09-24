@@ -10,7 +10,8 @@ public enum Tipo {
         this.tipo = tipo;
     }
 
-    public String getDescricao() {
+    @Override
+    public String toString() {
         return tipo;
     }
 }

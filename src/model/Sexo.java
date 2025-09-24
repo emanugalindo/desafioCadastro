@@ -2,7 +2,7 @@ package model;
 
 public enum Sexo {
     MACHO("Macho"),
-    FEMEA("Fêmea");
+    FEMEA("Femea");
 
     private String sexo;
 
@@ -10,7 +10,8 @@ public enum Sexo {
         this.sexo = sexo;
     }
 
-    public String getDescricao() {
+    @Override
+    public String toString() {
         return sexo;
     }
 }

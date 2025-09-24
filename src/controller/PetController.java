@@ -21,7 +21,7 @@ public class PetController {
         PetService ps = new PetService();
 
         if (Files.exists(Paths.get("petsCadastrados"))) {
-            ps.buscarCombinada();
+            ps.menu();
         } else {
             System.out.println("Nenhum pet cadastrado ainda.");
         }
