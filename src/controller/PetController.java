@@ -7,9 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class PetController {
-    public void criarPet() {
-        PetService ps = new PetService();
+    PetService ps = new PetService();
 
+    public void criarPet() {
         Pet pet = new Pet(ps.verificarNomeValido(), ps.verificarTipoValido(), ps.verificarSexoValido(),
                 ps.verificarEnderecoValido(), ps.verificarIdadevalida(), ps.verificarPesoValido(),
                 ps.verificarRacaValida());
@@ -18,12 +18,15 @@ public class PetController {
     }
 
     public void buscarPet() {
-        PetService ps = new PetService();
 
         if (Files.exists(Paths.get("petsCadastrados"))) {
             ps.menu();
         } else {
             System.out.println("Nenhum pet cadastrado ainda.");
         }
+    }
+
+    public void listarTodosPets(){
+        ps.exibirPets(ps.buscarPets(), 0, 0);
     }
 }
