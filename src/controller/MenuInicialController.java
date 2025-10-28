@@ -22,7 +22,7 @@ public class MenuInicialController {
                         pc.criarPet();
                         break;
                     case 2:
-                        System.out.println("Alterando");
+                        pc.alterarPet();
                         break;
                     case 3:
                         System.out.println("Deletando");

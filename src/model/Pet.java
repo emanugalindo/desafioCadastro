@@ -57,8 +57,9 @@ public class Pet {
         return endereco;
     }
 
-    public void setEndereco(Endereco endereco) {
-        this.endereco = endereco;
+    public void setEndereco(String endereco) {
+        String[] partes = endereco.split(",");
+        this.endereco = new Endereco(partes[0], partes[1], partes[2]);
     }
 
     public String getIdade() {
@@ -85,7 +86,7 @@ public class Pet {
         this.raca = raca;
     }
 
-    public void salvarPet(){
+    public void salvarPet() {
         File diretorio = new File("petsCadastrados");
         if (!diretorio.exists()) {
             diretorio.mkdirs();
@@ -96,7 +97,7 @@ public class Pet {
         String dataHoraFomatada = dataHora.format(formatador);
 
         File animal = new File("petsCadastrados/" + dataHoraFomatada + "-" + this.nome.replace(" ", "").toUpperCase() + ".txt");
-        try(BufferedWriter bw = new BufferedWriter(new FileWriter(animal, true))){
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(animal, true))) {
             bw.write("1 - " + this.nome);
             bw.newLine();
             bw.write("2 - " + this.tipo);
@@ -117,6 +118,31 @@ public class Pet {
         }
         System.out.println("Arquivo criado com sucesso");
     }
+
+    public void excluirArquivo(String nome) {
+        File[] arquivos = new File("petsCadastrados").listFiles();
+
+        if (arquivos == null) {
+            System.out.println("Diretório não encontrado");
+            return;
+        }
+
+        String nomeBusca = nome.replaceAll("\\s+", "").toUpperCase();
+
+        for (File arquivo : arquivos) {
+            if (arquivo.getName().toUpperCase().contains("-" + nomeBusca + ".TXT")) {
+                if (arquivo.delete()) {
+                    System.out.println("Arquivo deletado!!!");
+                } else {
+                    System.out.println("Erro ao deletar o arquivo");
+                }
+                return;
+            }
+        }
+        System.out.println("Arquivo não encontrado");
+    }
+
+
 
     @Override
     public String toString() {
