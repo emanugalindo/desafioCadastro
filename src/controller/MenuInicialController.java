@@ -25,7 +25,7 @@ public class MenuInicialController {
                         pc.alterarPet();
                         break;
                     case 3:
-                        System.out.println("Deletando");
+                        pc.deletarPet();
                         break;
                     case 4:
                         pc.listarTodosPets();

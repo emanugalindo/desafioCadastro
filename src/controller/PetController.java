@@ -35,4 +35,8 @@ public class PetController {
     public void alterarPet(){
         ps.alterarPets();
     }
+
+    public void deletarPet() {
+        ps.excluirPet();
+    }
 }

@@ -395,4 +395,31 @@ public class PetService {
         escolhido.excluirArquivo(nomeOriginal);
         escolhido.salvarPet();
     }
+
+    public void excluirPet() {
+        File[] arquivos = new File("petsCadastrados").listFiles();
+        int quantidade = arquivos.length;
+        ArrayList<Pet> pets = buscarPets();
+        int opcao;
+        String resposta;
+
+        exibirPets(pets);
+        do {
+            System.out.println("\nDigite o número do pet a ser deletado: ");
+            opcao = sc.nextInt();
+        } while (opcao <= 0 | opcao > quantidade);
+
+        Pet escolhido = pets.get(opcao - 1);
+
+        sc.nextLine();
+        System.out.printf("Deseja excluir o pet %s? [Sim|Não]\n", escolhido.getNome());
+        resposta = sc.nextLine();
+
+        if (resposta.equalsIgnoreCase("Sim")){
+            escolhido.excluirArquivo(escolhido.getNome());
+            System.out.printf("O pet %s foi excluído com sucesso!!!\n", escolhido.getNome());
+        }else {
+            System.out.printf("Exclusão do pet %s cancelada!!!\n", escolhido.getNome());
+        }
+    }
 }
