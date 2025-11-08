@@ -4,6 +4,7 @@ import model.Endereco;
 import model.Pet;
 import model.Sexo;
 import model.Tipo;
+import utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -15,6 +16,7 @@ import java.util.Scanner;
 
 public class PetService {
     Scanner sc = new Scanner(System.in);
+    Utils verificaoes = new Utils();
 
     public ArrayList<Pet> buscarPets() {
         File[] files = new File("petsCadastrados").listFiles();
@@ -350,8 +352,10 @@ public class PetService {
     public void alterarPets() {
         File[] arquivos = new File("petsCadastrados").listFiles();
         int quantidadeArquivos = arquivos.length;
+        int opcao = 0;
         ArrayList<Pet> pets = buscarPets();
-        String nome, nomeOriginal, endereco, idade, peso, raca;
+        String nomeOriginal;
+        Endereco endereco;
 
         exibirPets(pets);
         System.out.println("Escolha o número do pet a ser alterado: ");
@@ -366,31 +370,41 @@ public class PetService {
         nomeOriginal = escolhido.getNome();
         sc.nextLine();
 
-        System.out.println("Digite o nome ou pressione ENTER para manter o antigo:");
-        nome = sc.nextLine();
-        if (!nome.isBlank()) escolhido.setNome(nome);
-
-        System.out.println("Digite o endereço(Rua, Número, Cidade) ou pressione ENTER para manter o antigo:");
-        endereco = sc.nextLine();
-        if (!endereco.isBlank()) escolhido.setEndereco(endereco);
-
-        System.out.println("Digite a idade(anos) ou pressione ENTER para manter o antigo:");
-        idade = sc.nextLine();
-        if (!idade.isBlank()) {
-            idade = idade + " ano(s)";
-            escolhido.setIdade(idade);
+        System.out.println("Deseja alterar o nome do pet? [1- Sim | 2- Não]");
+        opcao = sc.nextInt();
+        sc.nextLine();
+        if (opcao == 1) {
+            escolhido.setNome(verificaoes.verificarNomeValido());
         }
 
-        System.out.println("Digite o peso(kg) ou pressione ENTER para manter o antigo:");
-        peso = sc.nextLine();
-        if (!peso.isBlank()) {
-            peso = peso + "kg";
-            escolhido.setPeso(peso);
+        System.out.println("Deseja alterar o endereco do pet? [1- Sim | 2- Não]");
+        opcao = sc.nextInt();
+        sc.nextLine();
+        if (opcao == 1) {
+            endereco = verificaoes.verificarEnderecoValido();
+            escolhido.setEndereco(endereco.toString());
         }
 
-        System.out.println("Digite a raça do pet ou pressione ENTER para manter o antigo:");
-        raca = sc.nextLine();
-        if (!raca.isBlank()) escolhido.setRaca(raca);
+        System.out.println("Deseja alterar a idade do pet? [1- Sim | 2- Não]");
+        opcao = sc.nextInt();
+        sc.nextLine();
+        if (opcao == 1) {
+            escolhido.setIdade(verificaoes.verificarIdadevalida());
+        }
+
+        System.out.println("Deseja alterar o peso do pet? [1- Sim | 2- Não]");
+        opcao = sc.nextInt();
+        sc.nextLine();
+        if (opcao == 1) {
+            escolhido.setPeso(verificaoes.verificarPesoValido());
+        }
+
+        System.out.println("Deseja alterar a raça do pet? [1- Sim | 2- Não]");
+        opcao = sc.nextInt();
+        sc.nextLine();
+        if (opcao == 1) {
+            escolhido.setRaca(verificaoes.verificarRacaValida());
+        }
 
         escolhido.excluirArquivo(nomeOriginal);
         escolhido.salvarPet();
@@ -415,10 +429,10 @@ public class PetService {
         System.out.printf("Deseja excluir o pet %s? [Sim|Não]\n", escolhido.getNome());
         resposta = sc.nextLine();
 
-        if (resposta.equalsIgnoreCase("Sim")){
+        if (resposta.equalsIgnoreCase("Sim")) {
             escolhido.excluirArquivo(escolhido.getNome());
             System.out.printf("O pet %s foi excluído com sucesso!!!\n", escolhido.getNome());
-        }else {
+        } else {
             System.out.printf("Exclusão do pet %s cancelada!!!\n", escolhido.getNome());
         }
     }
