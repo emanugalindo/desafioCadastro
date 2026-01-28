@@ -1,4 +1,4 @@
-package model;
+package com.example.springboot.models;
 
 public enum Tipo {
     CACHORRO("Cachorro"),

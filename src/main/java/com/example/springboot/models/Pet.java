@@ -1,4 +1,4 @@
-package model;
+package com.example.springboot.models;
 
 import java.io.BufferedWriter;
 import java.io.File;

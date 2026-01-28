@@ -1,4 +1,4 @@
-package controller;
+package com.example.springboot.controllers;
 
 import model.Pet;
 import services.PetService;

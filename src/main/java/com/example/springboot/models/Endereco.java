@@ -1,4 +1,4 @@
-package model;
+package com.example.springboot.models;
 
 public class Endereco {
     private String num;
